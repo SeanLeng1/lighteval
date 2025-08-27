@@ -242,7 +242,7 @@ def multilingual_extractive_match_metric(
         pred_extraction_regexes = get_extraction_regexes(doc, pred_extraction_target, language)
 
         extracted_predictions = [
-            extract_target_from_pred(pred, pred_extraction_regexes, fallback_mode, extraction_mode, timeout_seconds)
+            extract_target_from_pred(pred[-500:], pred_extraction_regexes, fallback_mode, extraction_mode, timeout_seconds)
             for pred in predictions
         ]
         extracted_golds = [
