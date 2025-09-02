@@ -249,8 +249,6 @@ def multilingual_extractive_match_metric(
             extract_target_from_pred(gold, gold_extraction_regexes, fallback_mode, extraction_mode, timeout_seconds)
             for gold in golds
         ]
-        # special cases for minerva
-        extracted_golds = [gold.replace('np.arcsin', 'arcsin') for gold in extracted_golds]
 
         # Assert on empty gold and warn on empty pred
         if any(len(g) == 0 for g in extracted_golds):
