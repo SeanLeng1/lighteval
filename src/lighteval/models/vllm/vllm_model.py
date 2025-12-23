@@ -46,7 +46,7 @@ logger = logging.getLogger(__name__)
 if is_vllm_available():
     import ray
     from more_itertools import distribute
-    from vllm import LLM, RequestOutput, SamplingParams
+    from vllm import LLM, RequestOutput, SamplingParams, TokensPrompt
     from vllm.distributed.parallel_state import (
         destroy_distributed_environment,
         destroy_model_parallel,
@@ -412,7 +412,7 @@ class VLLMModel(LightevalModel):
             @ray.remote(num_gpus=1 if self.tensor_parallel_size == 1 else None)
             def run_inference_one_model(model_args: dict, sampling_params: SamplingParams, requests):
                 llm = LLM(**model_args)
-                return llm.generate(prompt_token_ids=requests, sampling_params=sampling_params)
+                return llm.generate([TokensPrompt(prompt_token_ids=request) for request in requests], sampling_params=sampling_params)
 
             # dispatch requests to all self.data_parallel_size workers, in interleaved fashion
             # interleaved important to balance context lengths across workers
@@ -430,7 +430,7 @@ class VLLMModel(LightevalModel):
             ]
         else:
             outputs = self.model.generate(
-                prompt_token_ids=inputs,
+                [TokensPrompt(prompt_token_ids=input) for input in inputs],
                 sampling_params=sampling_params,
                 use_tqdm=True,
             )
